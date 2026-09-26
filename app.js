@@ -704,16 +704,54 @@ if (window.location.hash === '#signup' || window.location.search.includes('mode=
 }
 
 window.selectRole = function(role) {
-  window.selectedRole = role;
-  document.querySelectorAll('.role-card').forEach(card => {
-    if (card.dataset.role === role) {
-      card.classList.add('active');
+  window.currentRole = role;
+  console.log('[M2O Role Switcher] Selected role:', role);
+
+  var cards = document.querySelectorAll('.role-card');
+  for (var i = 0; i < cards.length; i++) {
+    var cardRole = cards[i].getAttribute('data-role');
+    var radio = cards[i].querySelector('input[type="radio"]');
+    if (cardRole === role) {
+      cards[i].classList.add('active');
+      if (radio) radio.checked = true;
     } else {
-      card.classList.remove('active');
+      cards[i].classList.remove('active');
+      if (radio) radio.checked = false;
     }
-  });
-  showToast(`Selected role: ${role.toUpperCase()}`, 'info');
+  }
+
+  var guideFields = document.getElementById('guideSignupFields');
+  var agentFields = document.getElementById('agentSignupFields');
+  if (guideFields) guideFields.style.setProperty('display', (role === 'guide') ? 'block' : 'none', 'important');
+  if (agentFields) agentFields.style.setProperty('display', (role === 'agent') ? 'block' : 'none', 'important');
+
+  var prevTitle = document.getElementById('previewTitle');
+  var prevDesc = document.getElementById('previewDesc');
+  if (prevTitle && prevDesc) {
+    if (role === 'guide') {
+      prevTitle.textContent = 'Tour Guide Partner Features';
+      prevDesc.textContent = 'Manage assigned tour leads, update live itinerary schedules, track customer reviews, and earn guide commission.';
+    } else if (role === 'agent') {
+      prevTitle.textContent = 'Travel Agency B2B Features';
+      prevDesc.textContent = 'Access wholesale package tariffs, issue B2B flight tickets, manage sub-agent bookings, and request custom quotes.';
+    } else {
+      prevTitle.textContent = 'Customer Account Features';
+      prevDesc.textContent = 'Book curated tours, save travel itineraries, track active bookings, and earn loyalty rewards.';
+    }
+  }
+
+  var signinEmail = document.getElementById('signinEmail');
+  if (signinEmail) {
+    if (role === 'guide') {
+      signinEmail.placeholder = 'e.g. guide@mount2ocean.com or 01811002233';
+    } else if (role === 'agent') {
+      signinEmail.placeholder = 'e.g. agent@mount2ocean.com or 01911002233';
+    } else {
+      signinEmail.placeholder = 'e.g. 01700000000 or name@example.com';
+    }
+  }
 };
+
 
 window.handleSigninSubmit = function(e) {
   e.preventDefault();
