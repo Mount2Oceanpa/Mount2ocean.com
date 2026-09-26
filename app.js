@@ -6331,19 +6331,23 @@ window.handleDeleteReview = function(id) {
 // ==========================================
 window.currentRole = 'customer';
 
+
+// ==========================================
+// MOUNT2OCEAN AUTH ENGINE & TAB SWITCHER (FOOLPROOF)
+// ==========================================
+window.currentRole = window.currentRole || 'customer';
+
 window.switchAuthTab = function(mode) {
+  console.log('[M2O Auth app.js] Switching mode to:', mode);
   var signinView = document.getElementById('signinView');
   var signupView = document.getElementById('signupView');
   var tabSigninBtn = document.getElementById('tabSigninBtn');
   var tabSignupBtn = document.getElementById('tabSignupBtn');
 
   if (mode === 'signup') {
-    if (signupView) {
-      signupView.style.setProperty('display', 'block', 'important');
-    }
-    if (signinView) {
-      signinView.style.setProperty('display', 'none', 'important');
-    }
+    if (signupView) signupView.style.setProperty('display', 'block', 'important');
+    if (signinView) signinView.style.setProperty('display', 'none', 'important');
+
     if (tabSignupBtn) {
       tabSignupBtn.classList.add('active');
       tabSignupBtn.style.setProperty('background', 'linear-gradient(135deg, #2b64ff 0%, #1c52d8 100%)', 'important');
@@ -6356,12 +6360,9 @@ window.switchAuthTab = function(mode) {
     }
     try { history.replaceState(null, null, '#signup'); } catch(e) {}
   } else {
-    if (signinView) {
-      signinView.style.setProperty('display', 'block', 'important');
-    }
-    if (signupView) {
-      signupView.style.setProperty('display', 'none', 'important');
-    }
+    if (signinView) signinView.style.setProperty('display', 'block', 'important');
+    if (signupView) signupView.style.setProperty('display', 'none', 'important');
+
     if (tabSigninBtn) {
       tabSigninBtn.classList.add('active');
       tabSigninBtn.style.setProperty('background', 'linear-gradient(135deg, #2b64ff 0%, #1c52d8 100%)', 'important');
@@ -6391,20 +6392,18 @@ window.selectRole = function(role) {
   if (agentFields) agentFields.style.display = (role === 'agent') ? 'block' : 'none';
 };
 
-// Immediate & DOMReady check for URL hash / query
 document.addEventListener('DOMContentLoaded', function() {
   if (window.location.hash === '#signup' || window.location.search.includes('mode=signup')) {
     window.switchAuthTab('signup');
   }
   
-  // Attach direct click handlers to buttons
   var btnSignin = document.getElementById('tabSigninBtn');
   var btnSignup = document.getElementById('tabSignupBtn');
   if (btnSignin) {
-    btnSignin.onclick = function(e) { e.preventDefault(); window.switchAuthTab('signin'); };
+    btnSignin.onclick = function(e) { if(e) e.preventDefault(); window.switchAuthTab('signin'); return false; };
   }
   if (btnSignup) {
-    btnSignup.onclick = function(e) { e.preventDefault(); window.switchAuthTab('signup'); };
+    btnSignup.onclick = function(e) { if(e) e.preventDefault(); window.switchAuthTab('signup'); return false; };
   }
 });
 
@@ -6415,7 +6414,3 @@ window.addEventListener('hashchange', function() {
     window.switchAuthTab('signin');
   }
 });
-
-if (window.location.hash === '#signup' || window.location.search.includes('mode=signup')) {
-  setTimeout(function() { window.switchAuthTab('signup'); }, 50);
-}

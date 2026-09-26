@@ -1,75 +1,17 @@
 ﻿<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Mount2ocean | Multi-Role Authentication Portal</title> <meta name="description" content="Secure and modern multi-role authentication login and signup portal for Customers, Tour Guides, and Travel Agents at Mount2ocean."> <!-- Google Fonts (Google Product Typography Stack) --> <link rel="preconnect" href="https://fonts.googleapis.com"> <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet"> <!-- Stylesheet --> <link rel="stylesheet" href="styles.css?v=v52_final_launch_ready"> <!-- INSTANT INLINE TAB & ROLE SWITCHER (ZERO-DEPENDENCY FAILSAFE) --> <script>
-var currentRole = 'customer';
+window.currentRole = 'customer';
 
-document.addEventListener('DOMContentLoaded', function() {
-  // Check hash or query parameter
-  if (window.location.hash === '#signup' || window.location.search.includes('mode=signup')) {
-    switchAuthTab('signup');
-  }
-
-  // Attach explicit click listeners to tab buttons
-  var btnSignin = document.getElementById('tabSigninBtn');
-  var btnSignup = document.getElementById('tabSignupBtn');
-  if (btnSignin) {
-    btnSignin.addEventListener('click', function(e) {
-      e.preventDefault();
-      switchAuthTab('signin');
-    });
-  }
-  if (btnSignup) {
-    btnSignup.addEventListener('click', function(e) {
-      e.preventDefault();
-      switchAuthTab('signup');
-    });
-  }
-
-  var urlParams = new URLSearchParams(window.location.search);
-  var isUnauthorized = urlParams.get('unauthorized');
-  var redirectMsg = sessionStorage.getItem('m2o_auth_redirect_msg');
-  var authAlertBanner = document.getElementById('authAlertBanner');
-  if (isUnauthorized || redirectMsg) {
-    if (authAlertBanner) {
-      authAlertBanner.style.display = 'block';
-      if (redirectMsg) {
-        var bannerText = document.getElementById('authAlertText');
-        if (bannerText) bannerText.textContent = redirectMsg;
-      }
-    }
-    sessionStorage.removeItem('m2o_auth_redirect_msg');
-  }
-});
-
-function switchAuthTab(mode) {
+window.switchAuthTab = function(mode) {
+  console.log('[M2O Auth] Switching mode to:', mode);
   var signinView = document.getElementById('signinView');
   var signupView = document.getElementById('signupView');
   var tabSigninBtn = document.getElementById('tabSigninBtn');
   var tabSignupBtn = document.getElementById('tabSignupBtn');
-  
-  if (mode === 'signin') {
-    if (signinView) {
-      signinView.style.setProperty('display', 'block', 'important');
-    }
-    if (signupView) {
-      signupView.style.setProperty('display', 'none', 'important');
-    }
-    if (tabSigninBtn) {
-      tabSigninBtn.classList.add('active');
-      tabSigninBtn.style.setProperty('background', 'linear-gradient(135deg, #2b64ff 0%, #1c52d8 100%)', 'important');
-      tabSigninBtn.style.setProperty('color', '#ffffff', 'important');
-    }
-    if (tabSignupBtn) {
-      tabSignupBtn.classList.remove('active');
-      tabSignupBtn.style.setProperty('background', 'transparent', 'important');
-      tabSignupBtn.style.setProperty('color', '#475569', 'important');
-    }
-    try { history.replaceState(null, null, '#signin'); } catch(e) {}
-  } else {
-    if (signupView) {
-      signupView.style.setProperty('display', 'block', 'important');
-    }
-    if (signinView) {
-      signinView.style.setProperty('display', 'none', 'important');
-    }
+
+  if (mode === 'signup') {
+    if (signupView) signupView.style.setProperty('display', 'block', 'important');
+    if (signinView) signinView.style.setProperty('display', 'none', 'important');
+
     if (tabSignupBtn) {
       tabSignupBtn.classList.add('active');
       tabSignupBtn.style.setProperty('background', 'linear-gradient(135deg, #2b64ff 0%, #1c52d8 100%)', 'important');
@@ -81,11 +23,26 @@ function switchAuthTab(mode) {
       tabSigninBtn.style.setProperty('color', '#475569', 'important');
     }
     try { history.replaceState(null, null, '#signup'); } catch(e) {}
-  }
-}
+  } else {
+    if (signinView) signinView.style.setProperty('display', 'block', 'important');
+    if (signupView) signupView.style.setProperty('display', 'none', 'important');
 
-function selectRole(role) {
-  currentRole = role;
+    if (tabSigninBtn) {
+      tabSigninBtn.classList.add('active');
+      tabSigninBtn.style.setProperty('background', 'linear-gradient(135deg, #2b64ff 0%, #1c52d8 100%)', 'important');
+      tabSigninBtn.style.setProperty('color', '#ffffff', 'important');
+    }
+    if (tabSignupBtn) {
+      tabSignupBtn.classList.remove('active');
+      tabSignupBtn.style.setProperty('background', 'transparent', 'important');
+      tabSignupBtn.style.setProperty('color', '#475569', 'important');
+    }
+    try { history.replaceState(null, null, '#signin'); } catch(e) {}
+  }
+};
+
+window.selectRole = function(role) {
+  window.currentRole = role;
   var cards = document.querySelectorAll('.role-card');
   for (var i = 0; i < cards.length; i++) {
     if (cards[i].getAttribute('data-role') === role) {
@@ -98,10 +55,10 @@ function selectRole(role) {
   var agentFields = document.getElementById('agentSignupFields');
   if (guideFields) guideFields.style.display = (role === 'guide') ? 'block' : 'none';
   if (agentFields) agentFields.style.display = (role === 'agent') ? 'block' : 'none';
-}
+};
 
-function handleSigninSubmit(e) {
-  e.preventDefault();
+window.handleSigninSubmit = function(e) {
+  if (e && e.preventDefault) e.preventDefault();
   var identityInput = document.getElementById('signinEmail') || document.getElementById('signinIdentityInput');
   var identityVal = identityInput ? identityInput.value.trim().toLowerCase() : '';
   var passInput = document.getElementById('signinPassword');
@@ -115,8 +72,8 @@ function handleSigninSubmit(e) {
     identityVal === '01977477172' ||
     identityVal === 'admin' ||
     identityVal === 'owner' ||
-    currentRole === 'owner' ||
-    currentRole === 'admin' ||
+    window.currentRole === 'owner' ||
+    window.currentRole === 'admin' ||
     passVal === 'admin123' ||
     passVal === 'owner123'
   );
@@ -128,25 +85,25 @@ function handleSigninSubmit(e) {
     localStorage.setItem('m2o_is_logged_in', 'true');
     var target = (redirectPage && redirectPage.startsWith('admin_')) ? redirectPage : 'admin_dashboard.html';
     window.location.href = target;
-    return;
+    return false;
   }
 
-  if (currentRole === 'guide' || identityVal === 'guide@mount2ocean.com' || identityVal === '01811002233') {
+  if (window.currentRole === 'guide' || identityVal === 'guide@mount2ocean.com' || identityVal === '01811002233') {
     var guideUser = { name: 'Certified Tour Guide Partner', mobile: identityVal.includes('@') ? '01811002233' : identityVal, email: identityVal.includes('@') ? identityVal : 'guide@mount2ocean.com', role: 'GUIDE' };
     localStorage.setItem('m2o_logged_user', JSON.stringify(guideUser));
     localStorage.setItem('m2o_user_role', 'GUIDE');
     localStorage.setItem('m2o_is_logged_in', 'true');
     window.location.href = 'agent_dashboard.html';
-    return;
+    return false;
   }
 
-  if (currentRole === 'agent' || identityVal === 'agent@mount2ocean.com' || identityVal === '01911002233') {
+  if (window.currentRole === 'agent' || identityVal === 'agent@mount2ocean.com' || identityVal === '01911002233') {
     var agentUser = { name: 'Verified Travel Agency Partner', mobile: identityVal.includes('@') ? '01911002233' : identityVal, email: identityVal.includes('@') ? identityVal : 'agent@mount2ocean.com', role: 'AGENT' };
     localStorage.setItem('m2o_logged_user', JSON.stringify(agentUser));
     localStorage.setItem('m2o_user_role', 'AGENT');
     localStorage.setItem('m2o_is_logged_in', 'true');
     window.location.href = 'agent_dashboard.html';
-    return;
+    return false;
   }
 
   var customerUser = { name: 'Sharmin Chowdhury', mobile: identityVal.includes('@') ? '01330303082' : (identityVal || '01330303082'), email: identityVal.includes('@') ? identityVal : 'sharmin@gmail.com', role: 'CUSTOMER' };
@@ -154,18 +111,24 @@ function handleSigninSubmit(e) {
   localStorage.setItem('m2o_user_role', 'CUSTOMER');
   localStorage.setItem('m2o_is_logged_in', 'true');
   window.location.href = 'customer_portal.html';
-}
+  return false;
+};
 
-function handleSignupSubmit(e) {
-  e.preventDefault();
-  var fullName = document.getElementById('signupFullName') ? document.getElementById('signupFullName').value.trim() : '';
-  var emailOrPhone = document.getElementById('signupEmail') ? document.getElementById('signupEmail').value.trim() : '';
-  var pass = document.getElementById('signupPassword') ? document.getElementById('signupPassword').value.trim() : '';
-  var passConf = document.getElementById('signupConfirmPassword') ? document.getElementById('signupConfirmPassword').value.trim() : '';
+window.handleSignupSubmit = function(e) {
+  if (e && e.preventDefault) e.preventDefault();
+  var fullNameEl = document.getElementById('signupFullName');
+  var emailEl = document.getElementById('signupEmail');
+  var passEl = document.getElementById('signupPassword');
+  var passConfEl = document.getElementById('signupConfirmPassword');
+
+  var fullName = fullNameEl ? fullNameEl.value.trim() : 'New User';
+  var emailOrPhone = emailEl ? emailEl.value.trim() : 'user@gmail.com';
+  var pass = passEl ? passEl.value.trim() : '';
+  var passConf = passConfEl ? passConfEl.value.trim() : '';
 
   if (pass && passConf && pass !== passConf) {
     alert('⚠️ Passwords do not match! Please verify your password confirmation.');
-    return;
+    return false;
   }
 
   var isEmail = emailOrPhone.includes('@');
@@ -176,7 +139,7 @@ function handleSignupSubmit(e) {
     name: fullName || 'Registered User',
     email: userEmail,
     mobile: userMobile,
-    role: (currentRole || 'customer').toUpperCase()
+    role: (window.currentRole || 'customer').toUpperCase()
   };
 
   localStorage.setItem('m2o_logged_user', JSON.stringify(userData));
@@ -187,24 +150,20 @@ function handleSignupSubmit(e) {
     window.collectAndStoreUser(userData);
   }
 
-  if (currentRole === 'customer') {
-    alert('🎉 Customer Account created successfully! Redirecting to Customer Portal...');
+  if (window.currentRole === 'customer') {
+    alert('🎉 Customer Account Created Successfully!
+
+Redirecting to Customer Portal...');
     window.location.href = 'customer_portal.html';
   } else {
-    var credentialNo = '';
-    var regionOrAddr = '';
-    if (currentRole === 'guide') {
-      credentialNo = (document.getElementById('guideLicenseInput') && document.getElementById('guideLicenseInput').value) || 'TG-NID-884920';
-      regionOrAddr = (document.getElementById('guideRegionInput') && document.getElementById('guideRegionInput').value) || 'Cox's Bazar & Sylhet';
-    } else if (currentRole === 'agent') {
-      credentialNo = (document.getElementById('agencyTradeLicenseInput') && document.getElementById('agencyTradeLicenseInput').value) || 'TRAD-DNCC-019284';
-      regionOrAddr = (document.getElementById('agencyAddressInput') && document.getElementById('agencyAddressInput').value) || 'Dhaka B2B Office';
-    }
+    var credentialNo = (document.getElementById('guideLicenseInput') && document.getElementById('guideLicenseInput').value) || (document.getElementById('agencyTradeLicenseInput') && document.getElementById('agencyTradeLicenseInput').value) || 'VERIFIED-REG-8820';
+    var regionOrAddr = (document.getElementById('guideRegionInput') && document.getElementById('guideRegionInput').value) || (document.getElementById('agencyAddressInput') && document.getElementById('agencyAddressInput').value) || 'Dhaka Office';
+
     var approvalRequest = {
       id: Date.now(),
-      name: fullName || (currentRole === 'guide' ? 'Certified Tour Guide' : 'Travel Agency Partner'),
+      name: fullName,
       email: userEmail,
-      role: currentRole.toUpperCase(),
+      role: window.currentRole.toUpperCase(),
       credentialNo: credentialNo,
       regionOrAddr: regionOrAddr,
       date: new Date().toLocaleDateString('en-US'),
@@ -215,14 +174,48 @@ function handleSignupSubmit(e) {
     localStorage.setItem('m2o_pending_approvals', JSON.stringify(approvals));
     alert('✅ Verification Request Sent!
 
-Your ' + currentRole.toUpperCase() + ' registration (Credential No: ' + credentialNo + ') has been submitted for Owner verification.
+Your ' + window.currentRole.toUpperCase() + ' registration has been submitted for Owner verification.
 
 Redirecting to Agent Portal...');
     setTimeout(function() {
       window.location.href = 'agent_dashboard.html';
-    }, 800);
+    }, 500);
   }
-}
+  return false;
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Direct Event Listeners for Tab Buttons
+  var btnSignin = document.getElementById('tabSigninBtn');
+  var btnSignup = document.getElementById('tabSignupBtn');
+  if (btnSignin) {
+    btnSignin.addEventListener('click', function(e) {
+      e.preventDefault();
+      window.switchAuthTab('signin');
+    });
+  }
+  if (btnSignup) {
+    btnSignup.addEventListener('click', function(e) {
+      e.preventDefault();
+      window.switchAuthTab('signup');
+    });
+  }
+
+  // Direct Event Listeners for Form Submissions
+  var signinForm = document.getElementById('signinForm');
+  if (signinForm) {
+    signinForm.addEventListener('submit', window.handleSigninSubmit);
+  }
+  var signupForm = document.getElementById('signupForm');
+  if (signupForm) {
+    signupForm.addEventListener('submit', window.handleSignupSubmit);
+  }
+
+  // Auto hash check
+  if (window.location.hash === '#signup' || window.location.search.includes('mode=signup')) {
+    window.switchAuthTab('signup');
+  }
+});
 </script> <style>body .showcase-panel,body .showcase-panel *,body .showcase-content,body .showcase-content *{color:#ffffff!important}body .showcase-panel strong,body .showcase-panel b{color:#00f2fe!important}body .gradient-text{color:transparent!important;background:linear-gradient(135deg,#00f2fe,#4facfe)!important;-webkit-background-clip:text!important;-webkit-text-fill-color:transparent!important;background-clip:text!important}body .showcase-panel .badge-pill,body .showcase-panel .badge-pill *{color:#00f2fe!important}body .showcase-panel #previewDesc,body .showcase-panel #previewDesc *{color:#94a3b8!important}body .showcase-panel .feature-list li,body .showcase-panel .feature-list li *{color:#ffffff!important}body .showcase-panel .feature-list li strong{color:#00f2fe!important}body .showcase-panel .showcase-desc,body .showcase-panel p{color:#e2e8f0!important}body .showcase-panel h1,body .showcase-panel h2,body .showcase-panel h3,body .showcase-panel h4{color:#ffffff!important}body .showcase-panel .showcase-heading{color:#ffffff!important}</style><style>
 /* AUTH CARD & SIGNUP FORM CONTRAST GUARANTEE */
 .glass-card { background: #ffffff !important; border-radius: 20px !important; box-shadow: 0 15px 35px rgba(0,0,0,0.15) !important; color: #0f172a !important; padding: 2rem !important; }
@@ -510,7 +503,7 @@ body .showcase-panel .badge-pill * {
     <span class="check-icon" style="width: 22px !important; height: 22px !important; min-width: 22px !important; background: #00f2fe !important; border-radius: 50% !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; color: #0b132b !important; font-weight: 900 !important; font-size: 13px !important;">✓</span>
     <span style="color: #ffffff !important; font-size: 0.98rem !important; font-weight: 600 !important;"><strong style="color: #00f2fe !important; font-weight: 900 !important;">Password Recovery:</strong> OTP verification modal integrated</span>
   </li>
-</ul> </div> </section> <!-- Right Auth Form Card --> <section class="auth-card-section"> <div class="glass-card"> <!-- Mode Tabs (Sign In / Sign Up) --> <div class="auth-tabs-wrapper" style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; background: #f1f5f9; padding: 0.35rem; border-radius: 12px;"> <button type="button" class="tab-switch-btn active" id="tabSigninBtn" onclick="window.switchAuthTab('signin'); return false;" style="flex: 1; padding: 0.75rem 1rem; border: none; border-radius: 8px; font-weight: 800; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; background: linear-gradient(135deg, #2b64ff 0%, #1c52d8 100%); color: #ffffff;"> Sign In </button> <button type="button" class="tab-switch-btn" id="tabSignupBtn" onclick="window.switchAuthTab('signup'); return false;" style="flex: 1; padding: 0.75rem 1rem; border: none; border-radius: 8px; font-weight: 800; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; background: transparent; color: #ffffff;"> Sign Up </button> </div> <!-- Unauthorized Admin Access Notification Banner --> <div id="authAlertBanner" style="display: none; background: #f1f5f9; border: 2px solid #ef4444; border-radius: 12px; padding: 1rem 1.2rem; margin-bottom: 1.2rem; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.15);"> <div style="font-weight: 900; color: #ef4444; font-size: 1rem; margin-bottom: 0.25rem;"> Owner &amp; Admin Login Required </div> <p id="authAlertText" style="font-size: 0.85rem; color: #ffffff; font-weight: 700; margin: 0;"> / । </p> </div> <!-- SIGN IN FORM VIEW --> <div id="signinView" style="display: block;"> <div class="form-header"> <h2>Welcome Back</h2> <p>Sign in to your account with Email/Mobile &amp; Password.</p> </div> <form id="signinForm" onsubmit="handleSigninSubmit(event)"> <div class="form-group"> <label>Email or Mobile Number <span class="required">*</span></label> <div class="input-wrapper"> <span class="input-icon"></span> <input type="text" id="signinEmail" placeholder="e.g. 01700000000 or name@example.com" required> </div> </div> <div class="form-group"> <div class="label-row"> <label>Password <span class="required">*</span></label> <a href="#" onclick="openForgotModal(event)" class="forgot-link">Forgot Password?</a> </div> <div class="input-wrapper"> <span class="input-icon"></span> <input type="password" id="signinPassword" placeholder="••••••••" required> </div> </div> <div class="form-options"> <label class="checkbox-container"> <input type="checkbox" checked> <span class="checkmark"></span> <span class="checkbox-label">Remember me on this device</span> </label> </div> <button type="submit" class="primary-btn full-width"> Sign In Now </button> </form> <p style="text-align: center; margin-top: 1.2rem; color: #ffffff; font-size: 0.88rem;"> Don't have an account yet? <a href="#signup" onclick="switchAuthTab('signup'); return false;" style="color: #00f2fe; font-weight: 700; text-decoration: underline; margin-left: 4px;"> Create Free Account </a> </p> </div> <!-- SIGN UP FORM VIEW --> <div id="signupView" style="display: none;"> <div class="form-header"> <h2>Create Free Account</h2> <p>Register your new account in seconds.</p> </div> <form id="signupForm" onsubmit="handleSignupSubmit(event)"> <div class="form-group"> <label>Full Name <span class="required">*</span></label> <div class="input-wrapper"> <span class="input-icon"></span> <input type="text" id="signupFullName" placeholder="Enter your full name" required> </div> </div> <div class="form-group"> <label>Email or Mobile Number <span class="required">*</span></label> <div class="input-wrapper"> <span class="input-icon"></span> <input type="text" id="signupEmail" placeholder="e.g. 01700000000 or name@example.com" required> </div> </div> <!-- DYNAMIC TOUR GUIDE REGISTRATION FIELDS --> <div id="guideSignupFields" style="display: none; background: #f1f5f9; border: 1px solid rgba(0, 242, 254, 0.3); padding: 1rem; border-radius: 12px; margin-bottom: 1.2rem;"> <div style="font-weight: 700; color: #00f2fe; margin-bottom: 0.75rem; font-size: 0.88rem;"> Tour Guide Professional Credentials: </div> <div class="form-group" style="margin-bottom: 0.75rem;"> <label style="font-size: 0.8rem;">Guide License / NID Number ( / ) <span class="required">*</span></label> <div class="input-wrapper"> <span class="input-icon"></span> <input type="text" id="guideLicenseInput" placeholder="e.g. TG-884920 or NID 199382746"> </div> </div> <div class="form-group" style="margin-bottom: 0.75rem;"> <label style="font-size: 0.8rem;">Primary Operating Region <span class="required">*</span></label> <div class="input-wrapper"> <span class="input-icon"></span> <input type="text" id="guideRegionInput" placeholder="e.g. Cox's Bazar, Sylhet, Chittagong"> </div> </div> <div class="form-group" style="margin-bottom: 0;"> <label style="font-size: 0.8rem;">Experience & Languages</label> <div class="input-wrapper"> <span class="input-icon">️</span> <input type="text" id="guideExpInput" placeholder="e.g. 5 Years Exp | Bangla, English, Hindi"> </div> </div> </div> <!-- DYNAMIC B2B AGENT REGISTRATION FIELDS --> <div id="agentSignupFields" style="display: none; background: #f1f5f9; border: 1px solid rgba(0, 242, 254, 0.3); padding: 1rem; border-radius: 12px; margin-bottom: 1.2rem;"> <div style="font-weight: 700; color: #00f2fe; margin-bottom: 0.75rem; font-size: 0.88rem;"> B2B Travel Agency Details: </div> <div class="form-group" style="margin-bottom: 0.75rem;"> <label style="font-size: 0.8rem;">Agency / Company Name ( / ) <span class="required">*</span></label> <div class="input-wrapper"> <span class="input-icon"></span> <input type="text" id="agencyNameInput" placeholder="e.g. Green World Travels & Tours Ltd."> </div> </div> <div class="form-group" style="margin-bottom: 0.75rem;"> <label style="font-size: 0.8rem;">Trade License / IATA No. <span class="required">*</span></label> <div class="input-wrapper"> <span class="input-icon"></span> <input type="text" id="agencyTradeLicenseInput" placeholder="e.g. TRAD/DNCC/019284 / IATA-99482"> </div> </div> <div class="form-group" style="margin-bottom: 0;"> <label style="font-size: 0.8rem;">Office Address & Designation</label> <div class="input-wrapper"> <span class="input-icon"></span> <input type="text" id="agencyAddressInput" placeholder="e.g. Banani C/A, Dhaka | Managing Director"> </div> </div> </div> <div class="form-group"> <label>Password <span class="required">*</span></label> <div class="input-wrapper"> <span class="input-icon"></span> <input type="password" id="signupPassword" placeholder="••••••••" required> </div> </div> <div class="form-group"> <label>Confirm Password <span class="required">*</span></label> <div class="input-wrapper"> <span class="input-icon"></span> <input type="password" id="signupConfirmPassword" placeholder="••••••••" required> </div> </div> <div class="form-options"> <label class="checkbox-container"> <input type="checkbox" checked required> <span class="checkmark"></span> <span class="checkbox-label">I agree to Terms &amp; Privacy Policy</span> </label> </div> <button type="submit" class="primary-btn full-width"> Create Free Account </button> </form> <p style="text-align: center; margin-top: 1.2rem; color: #ffffff; font-size: 0.88rem;"> Already registered? <a href="#signin" onclick="switchAuthTab('signin'); return false;" style="color: #00f2fe; font-weight: 700; text-decoration: underline; margin-left: 4px;"> Sign In Instead </a> </p> </div> <!-- ROLE SELECTOR BOX (SHARED) --> <div class="role-selector-box margin-top-md"> <div class="role-box-header"> <span class="role-box-title">Select Access Account Type:</span> </div> <div class="role-options-grid"> <!-- Customer Option --> <label class="role-card active" data-role="customer" onclick="selectRole('customer')"> <input type="radio" name="accountRoleGlobal" value="customer" checked> <div class="role-card-inner"> <div class="role-icon"></div> <div class="role-meta"> <span class="role-name">Customer Login</span> <span class="role-sub">Traveler &amp; Bookings</span> </div> </div> <span class="active-badge">Selected</span> </label> <!-- Guide Option --> <label class="role-card" data-role="guide" onclick="selectRole('guide')"> <input type="radio" name="accountRoleGlobal" value="guide"> <div class="role-card-inner"> <div class="role-icon"></div> <div class="role-meta"> <span class="role-name">Guide Login</span> <span class="role-sub">Tour Guides &amp; Leads</span> </div> </div> <span class="active-badge">Selected</span> </label> <!-- Agent Option --> <label class="role-card" data-role="agent" onclick="selectRole('agent')"> <input type="radio" name="accountRoleGlobal" value="agent"> <div class="role-card-inner"> <div class="role-icon"></div> <div class="role-meta"> <span class="role-name">Agent Login</span> <span class="role-sub">Agencies &amp; Vendors</span> </div> </div> <span class="active-badge">Selected</span> </label> </div> </div> </div> </section> </div> </main> <!-- FORGOT PASSWORD MODAL --> <div class="modal-overlay hidden" id="forgotModal"> <div class="modal-card"> <button class="modal-close" id="closeForgotModal">&times;</button> <!-- Step 1: Request OTP --> <div id="forgotStep1" class="modal-step"> <div class="modal-icon"></div> <h3>Reset Your Password</h3> <p>Enter your registered email address below. We'll send a 6-digit OTP security code.</p> <div class="form-group margin-top-md"> <label for="resetEmailInput">Account Email Address</label> <div class="input-wrapper"> <span class="input-icon">️</span> <input type="email" id="resetEmailInput" placeholder="your-email@example.com"> </div> <span class="field-error" id="resetEmailError"></span> </div> <button type="button" id="btnSendOTP" class="primary-btn full-width margin-top-md"> Send Verification OTP </button> </div> <!-- Step 2: Verify OTP --> <div id="forgotStep2" class="modal-step hidden"> <div class="modal-icon"></div> <h3>Enter Security OTP</h3> <p>A 6-digit verification code has been generated. Demo Code: <strong class="code-highlight">789012</strong></p> <div class="otp-inputs-container"> <input type="text" maxlength="1" class="otp-digit" data-index="0" autofocus> <input type="text" maxlength="1" class="otp-digit" data-index="1"> <input type="text" maxlength="1" class="otp-digit" data-index="2"> <input type="text" maxlength="1" class="otp-digit" data-index="3"> <input type="text" maxlength="1" class="otp-digit" data-index="4"> <input type="text" maxlength="1" class="otp-digit" data-index="5"> </div> <span class="field-error center-text" id="otpError"></span> <button type="button" id="btnVerifyOTP" class="primary-btn full-width margin-top-md"> Verify & Reset Password </button> </div> <!-- Step 3: Success --> <div id="forgotStep3" class="modal-step hidden text-center"> <div class="modal-icon success-icon"></div> <h3>Password Reset Complete!</h3> <p>Your password has been successfully updated. You may now sign in with your new password.</p> <button type="button" id="btnFinishReset" class="primary-btn full-width margin-top-md"> Return to Sign In </button> </div> </div> </div> <!-- SUCCESS DASHBOARD PREVIEW MODAL --> <div class="modal-overlay hidden" id="dashboardModal"> <div class="modal-card dashboard-card"> <button class="modal-close" id="closeDashboardModal">&times;</button> <div class="dashboard-header"> <div class="user-avatar" id="dashAvatar"></div> <div class="user-info"> <div class="user-role-badge" id="dashRoleBadge">CUSTOMER ACCOUNT</div> <h2 id="dashUserName">Welcome, User!</h2> <p id="dashUserEmail">user@example.com</p> </div> </div> <div class="dashboard-body"> <div class="status-box"> <span class="status-dot green"></span> <span>Authentication Successful (Step 1 Verification Passed)</span> </div> <div class="dash-grid"> <div class="dash-stat-card"> <span class="stat-label">Active Role</span> <span class="stat-value" id="dashRoleName">Customer</span> </div> <div class="dash-stat-card"> <span class="stat-label">Session ID</span> <span class="stat-value" id="dashSessionId">#M2O-99201</span> </div> <div class="dash-stat-card"> <span class="stat-label">Access Level</span> <span class="stat-value" id="dashAccessLevel">Full Access</span> </div> </div> <div class="dash-actions"> <button type="button" id="btnLogout" class="secondary-btn">Sign Out</button> </div> </div> </div> </div> <!-- TOAST NOTIFICATION CONTAINER --> <div class="toast-container" id="toastContainer"></div> <!-- JavaScript --> <script src="app.js?v=v51_zero_invisible_contrast"></script>
+</ul> </div> </section> <!-- Right Auth Form Card --> <section class="auth-card-section"> <div class="glass-card"> <!-- Mode Tabs (Sign In / Sign Up) --> <div class="auth-tabs-wrapper" style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; background: #f1f5f9; padding: 0.35rem; border-radius: 12px;"> <button type="button" class="tab-switch-btn active" id="tabSigninBtn" onclick="window.switchAuthTab('signin')" style="flex: 1; padding: 0.75rem 1rem; border: none; border-radius: 8px; font-weight: 800; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; background: linear-gradient(135deg, #2b64ff 0%, #1c52d8 100%); color: #ffffff;"> Sign In </button> <button type="button" class="tab-switch-btn" id="tabSignupBtn" onclick="window.switchAuthTab('signup')" style="flex: 1; padding: 0.75rem 1rem; border: none; border-radius: 8px; font-weight: 800; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; background: transparent; color: #ffffff;"> Sign Up </button> </div> <!-- Unauthorized Admin Access Notification Banner --> <div id="authAlertBanner" style="display: none; background: #f1f5f9; border: 2px solid #ef4444; border-radius: 12px; padding: 1rem 1.2rem; margin-bottom: 1.2rem; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.15);"> <div style="font-weight: 900; color: #ef4444; font-size: 1rem; margin-bottom: 0.25rem;"> Owner &amp; Admin Login Required </div> <p id="authAlertText" style="font-size: 0.85rem; color: #ffffff; font-weight: 700; margin: 0;"> / । </p> </div> <!-- SIGN IN FORM VIEW --> <div id="signinView" style="display: block;"> <div class="form-header"> <h2>Welcome Back</h2> <p>Sign in to your account with Email/Mobile &amp; Password.</p> </div> <form id="signinForm" onsubmit="handleSigninSubmit(event)"> <div class="form-group"> <label>Email or Mobile Number <span class="required">*</span></label> <div class="input-wrapper"> <span class="input-icon"></span> <input type="text" id="signinEmail" placeholder="e.g. 01700000000 or name@example.com" required> </div> </div> <div class="form-group"> <div class="label-row"> <label>Password <span class="required">*</span></label> <a href="#" onclick="openForgotModal(event)" class="forgot-link">Forgot Password?</a> </div> <div class="input-wrapper"> <span class="input-icon"></span> <input type="password" id="signinPassword" placeholder="••••••••" required> </div> </div> <div class="form-options"> <label class="checkbox-container"> <input type="checkbox" checked> <span class="checkmark"></span> <span class="checkbox-label">Remember me on this device</span> </label> </div> <button type="submit" class="primary-btn full-width"> Sign In Now </button> </form> <p style="text-align: center; margin-top: 1.2rem; color: #ffffff; font-size: 0.88rem;"> Don't have an account yet? <a href="#signup" onclick="switchAuthTab('signup'); return false;" style="color: #00f2fe; font-weight: 700; text-decoration: underline; margin-left: 4px;"> Create Free Account </a> </p> </div> <!-- SIGN UP FORM VIEW --> <div id="signupView" style="display: none;"> <div class="form-header"> <h2>Create Free Account</h2> <p>Register your new account in seconds.</p> </div> <form id="signupForm" onsubmit="handleSignupSubmit(event)"> <div class="form-group"> <label>Full Name <span class="required">*</span></label> <div class="input-wrapper"> <span class="input-icon"></span> <input type="text" id="signupFullName" placeholder="Enter your full name" required> </div> </div> <div class="form-group"> <label>Email or Mobile Number <span class="required">*</span></label> <div class="input-wrapper"> <span class="input-icon"></span> <input type="text" id="signupEmail" placeholder="e.g. 01700000000 or name@example.com" required> </div> </div> <!-- DYNAMIC TOUR GUIDE REGISTRATION FIELDS --> <div id="guideSignupFields" style="display: none; background: #f1f5f9; border: 1px solid rgba(0, 242, 254, 0.3); padding: 1rem; border-radius: 12px; margin-bottom: 1.2rem;"> <div style="font-weight: 700; color: #00f2fe; margin-bottom: 0.75rem; font-size: 0.88rem;"> Tour Guide Professional Credentials: </div> <div class="form-group" style="margin-bottom: 0.75rem;"> <label style="font-size: 0.8rem;">Guide License / NID Number ( / ) <span class="required">*</span></label> <div class="input-wrapper"> <span class="input-icon"></span> <input type="text" id="guideLicenseInput" placeholder="e.g. TG-884920 or NID 199382746"> </div> </div> <div class="form-group" style="margin-bottom: 0.75rem;"> <label style="font-size: 0.8rem;">Primary Operating Region <span class="required">*</span></label> <div class="input-wrapper"> <span class="input-icon"></span> <input type="text" id="guideRegionInput" placeholder="e.g. Cox's Bazar, Sylhet, Chittagong"> </div> </div> <div class="form-group" style="margin-bottom: 0;"> <label style="font-size: 0.8rem;">Experience & Languages</label> <div class="input-wrapper"> <span class="input-icon">️</span> <input type="text" id="guideExpInput" placeholder="e.g. 5 Years Exp | Bangla, English, Hindi"> </div> </div> </div> <!-- DYNAMIC B2B AGENT REGISTRATION FIELDS --> <div id="agentSignupFields" style="display: none; background: #f1f5f9; border: 1px solid rgba(0, 242, 254, 0.3); padding: 1rem; border-radius: 12px; margin-bottom: 1.2rem;"> <div style="font-weight: 700; color: #00f2fe; margin-bottom: 0.75rem; font-size: 0.88rem;"> B2B Travel Agency Details: </div> <div class="form-group" style="margin-bottom: 0.75rem;"> <label style="font-size: 0.8rem;">Agency / Company Name ( / ) <span class="required">*</span></label> <div class="input-wrapper"> <span class="input-icon"></span> <input type="text" id="agencyNameInput" placeholder="e.g. Green World Travels & Tours Ltd."> </div> </div> <div class="form-group" style="margin-bottom: 0.75rem;"> <label style="font-size: 0.8rem;">Trade License / IATA No. <span class="required">*</span></label> <div class="input-wrapper"> <span class="input-icon"></span> <input type="text" id="agencyTradeLicenseInput" placeholder="e.g. TRAD/DNCC/019284 / IATA-99482"> </div> </div> <div class="form-group" style="margin-bottom: 0;"> <label style="font-size: 0.8rem;">Office Address & Designation</label> <div class="input-wrapper"> <span class="input-icon"></span> <input type="text" id="agencyAddressInput" placeholder="e.g. Banani C/A, Dhaka | Managing Director"> </div> </div> </div> <div class="form-group"> <label>Password <span class="required">*</span></label> <div class="input-wrapper"> <span class="input-icon"></span> <input type="password" id="signupPassword" placeholder="••••••••" required> </div> </div> <div class="form-group"> <label>Confirm Password <span class="required">*</span></label> <div class="input-wrapper"> <span class="input-icon"></span> <input type="password" id="signupConfirmPassword" placeholder="••••••••" required> </div> </div> <div class="form-options"> <label class="checkbox-container"> <input type="checkbox" checked required> <span class="checkmark"></span> <span class="checkbox-label">I agree to Terms &amp; Privacy Policy</span> </label> </div> <button type="submit" class="primary-btn full-width"> Create Free Account </button> </form> <p style="text-align: center; margin-top: 1.2rem; color: #ffffff; font-size: 0.88rem;"> Already registered? <a href="#signin" onclick="switchAuthTab('signin'); return false;" style="color: #00f2fe; font-weight: 700; text-decoration: underline; margin-left: 4px;"> Sign In Instead </a> </p> </div> <!-- ROLE SELECTOR BOX (SHARED) --> <div class="role-selector-box margin-top-md"> <div class="role-box-header"> <span class="role-box-title">Select Access Account Type:</span> </div> <div class="role-options-grid"> <!-- Customer Option --> <label class="role-card active" data-role="customer" onclick="selectRole('customer')"> <input type="radio" name="accountRoleGlobal" value="customer" checked> <div class="role-card-inner"> <div class="role-icon"></div> <div class="role-meta"> <span class="role-name">Customer Login</span> <span class="role-sub">Traveler &amp; Bookings</span> </div> </div> <span class="active-badge">Selected</span> </label> <!-- Guide Option --> <label class="role-card" data-role="guide" onclick="selectRole('guide')"> <input type="radio" name="accountRoleGlobal" value="guide"> <div class="role-card-inner"> <div class="role-icon"></div> <div class="role-meta"> <span class="role-name">Guide Login</span> <span class="role-sub">Tour Guides &amp; Leads</span> </div> </div> <span class="active-badge">Selected</span> </label> <!-- Agent Option --> <label class="role-card" data-role="agent" onclick="selectRole('agent')"> <input type="radio" name="accountRoleGlobal" value="agent"> <div class="role-card-inner"> <div class="role-icon"></div> <div class="role-meta"> <span class="role-name">Agent Login</span> <span class="role-sub">Agencies &amp; Vendors</span> </div> </div> <span class="active-badge">Selected</span> </label> </div> </div> </div> </section> </div> </main> <!-- FORGOT PASSWORD MODAL --> <div class="modal-overlay hidden" id="forgotModal"> <div class="modal-card"> <button class="modal-close" id="closeForgotModal">&times;</button> <!-- Step 1: Request OTP --> <div id="forgotStep1" class="modal-step"> <div class="modal-icon"></div> <h3>Reset Your Password</h3> <p>Enter your registered email address below. We'll send a 6-digit OTP security code.</p> <div class="form-group margin-top-md"> <label for="resetEmailInput">Account Email Address</label> <div class="input-wrapper"> <span class="input-icon">️</span> <input type="email" id="resetEmailInput" placeholder="your-email@example.com"> </div> <span class="field-error" id="resetEmailError"></span> </div> <button type="button" id="btnSendOTP" class="primary-btn full-width margin-top-md"> Send Verification OTP </button> </div> <!-- Step 2: Verify OTP --> <div id="forgotStep2" class="modal-step hidden"> <div class="modal-icon"></div> <h3>Enter Security OTP</h3> <p>A 6-digit verification code has been generated. Demo Code: <strong class="code-highlight">789012</strong></p> <div class="otp-inputs-container"> <input type="text" maxlength="1" class="otp-digit" data-index="0" autofocus> <input type="text" maxlength="1" class="otp-digit" data-index="1"> <input type="text" maxlength="1" class="otp-digit" data-index="2"> <input type="text" maxlength="1" class="otp-digit" data-index="3"> <input type="text" maxlength="1" class="otp-digit" data-index="4"> <input type="text" maxlength="1" class="otp-digit" data-index="5"> </div> <span class="field-error center-text" id="otpError"></span> <button type="button" id="btnVerifyOTP" class="primary-btn full-width margin-top-md"> Verify & Reset Password </button> </div> <!-- Step 3: Success --> <div id="forgotStep3" class="modal-step hidden text-center"> <div class="modal-icon success-icon"></div> <h3>Password Reset Complete!</h3> <p>Your password has been successfully updated. You may now sign in with your new password.</p> <button type="button" id="btnFinishReset" class="primary-btn full-width margin-top-md"> Return to Sign In </button> </div> </div> </div> <!-- SUCCESS DASHBOARD PREVIEW MODAL --> <div class="modal-overlay hidden" id="dashboardModal"> <div class="modal-card dashboard-card"> <button class="modal-close" id="closeDashboardModal">&times;</button> <div class="dashboard-header"> <div class="user-avatar" id="dashAvatar"></div> <div class="user-info"> <div class="user-role-badge" id="dashRoleBadge">CUSTOMER ACCOUNT</div> <h2 id="dashUserName">Welcome, User!</h2> <p id="dashUserEmail">user@example.com</p> </div> </div> <div class="dashboard-body"> <div class="status-box"> <span class="status-dot green"></span> <span>Authentication Successful (Step 1 Verification Passed)</span> </div> <div class="dash-grid"> <div class="dash-stat-card"> <span class="stat-label">Active Role</span> <span class="stat-value" id="dashRoleName">Customer</span> </div> <div class="dash-stat-card"> <span class="stat-label">Session ID</span> <span class="stat-value" id="dashSessionId">#M2O-99201</span> </div> <div class="dash-stat-card"> <span class="stat-label">Access Level</span> <span class="stat-value" id="dashAccessLevel">Full Access</span> </div> </div> <div class="dash-actions"> <button type="button" id="btnLogout" class="secondary-btn">Sign Out</button> </div> </div> </div> </div> <!-- TOAST NOTIFICATION CONTAINER --> <div class="toast-container" id="toastContainer"></div> <!-- JavaScript --> <script src="app.js?v=v51_zero_invisible_contrast"></script>
 <script>
   // Failsafe auto-switch on page load
   (function() {
