@@ -681,42 +681,7 @@ window.populateCustSearchSelect = function() {
 // ==========================================
 window.selectedRole = 'customer';
 
-window.window.switchAuthTab = function(mode) {
-  const signinView = document.getElementById('signinView');
-  const signupView = document.getElementById('signupView');
-  const tabSigninBtn = document.getElementById('tabSigninBtn');
-  const tabSignupBtn = document.getElementById('tabSignupBtn');
-
-  if (mode === 'signin') {
-    if (signinView) signinView.style.setProperty('display', 'block', 'important');
-    if (signupView) signupView.style.setProperty('display', 'none', 'important');
-
-    if (tabSigninBtn) {
-      tabSigninBtn.classList.add('active');
-      tabSigninBtn.style.setProperty('background', 'linear-gradient(135deg, #2b64ff 0%, #1c52d8 100%)', 'important');
-      tabSigninBtn.style.setProperty('color', '#ffffff', 'important');
-    }
-    if (tabSignupBtn) {
-      tabSignupBtn.classList.remove('active');
-      tabSignupBtn.style.setProperty('background', 'transparent', 'important');
-      tabSignupBtn.style.setProperty('color', '#475569', 'important');
-    }
-  } else {
-    if (signupView) signupView.style.setProperty('display', 'block', 'important');
-    if (signinView) signinView.style.setProperty('display', 'none', 'important');
-
-    if (tabSignupBtn) {
-      tabSignupBtn.classList.add('active');
-      tabSignupBtn.style.setProperty('background', 'linear-gradient(135deg, #2b64ff 0%, #1c52d8 100%)', 'important');
-      tabSignupBtn.style.setProperty('color', '#ffffff', 'important');
-    }
-    if (tabSigninBtn) {
-      tabSigninBtn.classList.remove('active');
-      tabSigninBtn.style.setProperty('background', 'transparent', 'important');
-      tabSigninBtn.style.setProperty('color', '#475569', 'important');
-    }
-  }
-};
+window.
 
 // Hash & Query auto switcher on page load and hash change
 document.addEventListener('DOMContentLoaded', function() {
@@ -6359,3 +6324,98 @@ window.handleDeleteReview = function(id) {
 
 
 
+
+
+// ==========================================
+// MOUNT2OCEAN AUTH & TAB SWITCHER ENGINE (ULTRA-RELIABLE)
+// ==========================================
+window.currentRole = 'customer';
+
+window.switchAuthTab = function(mode) {
+  var signinView = document.getElementById('signinView');
+  var signupView = document.getElementById('signupView');
+  var tabSigninBtn = document.getElementById('tabSigninBtn');
+  var tabSignupBtn = document.getElementById('tabSignupBtn');
+
+  if (mode === 'signup') {
+    if (signupView) {
+      signupView.style.setProperty('display', 'block', 'important');
+    }
+    if (signinView) {
+      signinView.style.setProperty('display', 'none', 'important');
+    }
+    if (tabSignupBtn) {
+      tabSignupBtn.classList.add('active');
+      tabSignupBtn.style.setProperty('background', 'linear-gradient(135deg, #2b64ff 0%, #1c52d8 100%)', 'important');
+      tabSignupBtn.style.setProperty('color', '#ffffff', 'important');
+    }
+    if (tabSigninBtn) {
+      tabSigninBtn.classList.remove('active');
+      tabSigninBtn.style.setProperty('background', 'transparent', 'important');
+      tabSigninBtn.style.setProperty('color', '#475569', 'important');
+    }
+    try { history.replaceState(null, null, '#signup'); } catch(e) {}
+  } else {
+    if (signinView) {
+      signinView.style.setProperty('display', 'block', 'important');
+    }
+    if (signupView) {
+      signupView.style.setProperty('display', 'none', 'important');
+    }
+    if (tabSigninBtn) {
+      tabSigninBtn.classList.add('active');
+      tabSigninBtn.style.setProperty('background', 'linear-gradient(135deg, #2b64ff 0%, #1c52d8 100%)', 'important');
+      tabSigninBtn.style.setProperty('color', '#ffffff', 'important');
+    }
+    if (tabSignupBtn) {
+      tabSignupBtn.classList.remove('active');
+      tabSignupBtn.style.setProperty('background', 'transparent', 'important');
+      tabSignupBtn.style.setProperty('color', '#475569', 'important');
+    }
+    try { history.replaceState(null, null, '#signin'); } catch(e) {}
+  }
+};
+
+window.selectRole = function(role) {
+  window.currentRole = role;
+  document.querySelectorAll('.role-card').forEach(function(card) {
+    if (card.getAttribute('data-role') === role) {
+      card.classList.add('active');
+    } else {
+      card.classList.remove('active');
+    }
+  });
+  var guideFields = document.getElementById('guideSignupFields');
+  var agentFields = document.getElementById('agentSignupFields');
+  if (guideFields) guideFields.style.display = (role === 'guide') ? 'block' : 'none';
+  if (agentFields) agentFields.style.display = (role === 'agent') ? 'block' : 'none';
+};
+
+// Immediate & DOMReady check for URL hash / query
+document.addEventListener('DOMContentLoaded', function() {
+  if (window.location.hash === '#signup' || window.location.search.includes('mode=signup')) {
+    window.switchAuthTab('signup');
+  }
+  
+  // Attach direct click handlers to buttons
+  var btnSignin = document.getElementById('tabSigninBtn');
+  var btnSignup = document.getElementById('tabSignupBtn');
+  if (btnSignin) {
+    btnSignin.onclick = function(e) { e.preventDefault(); window.switchAuthTab('signin'); };
+  }
+  if (btnSignup) {
+    btnSignup.onclick = function(e) { e.preventDefault(); window.switchAuthTab('signup'); };
+  }
+});
+
+window.addEventListener('hashchange', function() {
+  if (window.location.hash === '#signup') {
+    window.switchAuthTab('signup');
+  } else if (window.location.hash === '#signin') {
+    window.switchAuthTab('signin');
+  }
+});
+
+if (window.location.hash === '#signup' || window.location.search.includes('mode=signup')) {
+  setTimeout(function() { window.switchAuthTab('signup'); }, 50);
+}
