@@ -681,40 +681,62 @@ window.populateCustSearchSelect = function() {
 // ==========================================
 window.selectedRole = 'customer';
 
-window.switchAuthTab = function(mode) {
+window.window.switchAuthTab = function(mode) {
   const signinView = document.getElementById('signinView');
   const signupView = document.getElementById('signupView');
   const tabSigninBtn = document.getElementById('tabSigninBtn');
   const tabSignupBtn = document.getElementById('tabSignupBtn');
 
   if (mode === 'signin') {
-    if (signinView) signinView.style.display = 'block';
-    if (signupView) signupView.style.display = 'none';
+    if (signinView) signinView.style.setProperty('display', 'block', 'important');
+    if (signupView) signupView.style.setProperty('display', 'none', 'important');
 
     if (tabSigninBtn) {
-      tabSigninBtn.style.background = 'linear-gradient(135deg, #00a651 0%, #0072bc 100%)';
-      tabSigninBtn.style.color = '#ffffff';
+      tabSigninBtn.classList.add('active');
+      tabSigninBtn.style.setProperty('background', 'linear-gradient(135deg, #2b64ff 0%, #1c52d8 100%)', 'important');
+      tabSigninBtn.style.setProperty('color', '#ffffff', 'important');
     }
     if (tabSignupBtn) {
-      tabSignupBtn.style.background = 'transparent';
-      tabSignupBtn.style.color = '#94a3b8';
+      tabSignupBtn.classList.remove('active');
+      tabSignupBtn.style.setProperty('background', 'transparent', 'important');
+      tabSignupBtn.style.setProperty('color', '#475569', 'important');
     }
-    showToast('Switched to Sign In ( )', 'info');
   } else {
-    if (signupView) signupView.style.display = 'block';
-    if (signinView) signinView.style.display = 'none';
+    if (signupView) signupView.style.setProperty('display', 'block', 'important');
+    if (signinView) signinView.style.setProperty('display', 'none', 'important');
 
     if (tabSignupBtn) {
-      tabSignupBtn.style.background = 'linear-gradient(135deg, #00a651 0%, #0072bc 100%)';
-      tabSignupBtn.style.color = '#ffffff';
+      tabSignupBtn.classList.add('active');
+      tabSignupBtn.style.setProperty('background', 'linear-gradient(135deg, #2b64ff 0%, #1c52d8 100%)', 'important');
+      tabSignupBtn.style.setProperty('color', '#ffffff', 'important');
     }
     if (tabSigninBtn) {
-      tabSigninBtn.style.background = 'transparent';
-      tabSigninBtn.style.color = '#94a3b8';
+      tabSigninBtn.classList.remove('active');
+      tabSigninBtn.style.setProperty('background', 'transparent', 'important');
+      tabSigninBtn.style.setProperty('color', '#475569', 'important');
     }
-    showToast('Switched to Sign Up (  )', 'info');
   }
 };
+
+// Hash & Query auto switcher on page load and hash change
+document.addEventListener('DOMContentLoaded', function() {
+  if (window.location.hash === '#signup' || window.location.search.includes('mode=signup')) {
+    window.switchAuthTab('signup');
+  }
+});
+
+window.addEventListener('hashchange', function() {
+  if (window.location.hash === '#signup') {
+    window.switchAuthTab('signup');
+  } else if (window.location.hash === '#signin') {
+    window.switchAuthTab('signin');
+  }
+});
+
+// Run immediate check if script executes after DOMReady
+if (window.location.hash === '#signup' || window.location.search.includes('mode=signup')) {
+  setTimeout(function() { window.switchAuthTab('signup'); }, 50);
+}
 
 window.selectRole = function(role) {
   window.selectedRole = role;
